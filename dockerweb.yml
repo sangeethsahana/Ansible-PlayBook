@@ -16,7 +16,7 @@
             name: "mydvd1"
             description: "yum for my dvd1"
             gpgcheck: no
-  - name: yum repo for mydvd1...
+  - name: yum repo for mydvd2...
     yum_repository:
             baseurl: "/dvd/BaseOS"
             name: "mydvd2"
@@ -55,7 +55,7 @@
             name: "/root/webpage"
             state: directory
 
-  - name: copying html code to /var/www/html dir...
+  - name: copying html code...
     copy:
             dest: "/root/webpage/index.html"
             content: "Task 10 ansible of ARTH completed!\n"
