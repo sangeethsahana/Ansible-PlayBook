@@ -1,0 +1,81 @@
+- hosts: all
+  tasks:
+  - name: Creating a file/mount point for cdrom...
+    file:
+         state: directory
+         path: "/dvd"
+  - name: Mounting...
+    mount:
+          src: "/dev/cdrom"
+          path: "/dvd"
+          state: mounted
+          fstype: "iso9660"
+  - name: yum repo for mydvd1...
+    yum_repository:
+            baseurl: "/dvd/AppStream"
+            name: "mydvd1"
+            description: "yum for my dvd1"
+            gpgcheck: no
+  - name: yum repo for mydvd1...
+    yum_repository:
+            baseurl: "/dvd/BaseOS"
+            name: "mydvd2"
+            description: "yum for my dvd2"
+            gpgcheck: no
+  - name: yum repo for docker...
+    yum_repository:
+            baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable"
+            name: "docker"
+            file: docker
+            description: "yum for docker"
+            gpgcheck: no
+            enabled: true
+  - name: installing docker...
+    package:
+            name: "docker-ce-18.09.1-3.el7.x86_64"
+            state: present
+
+  - name: Starting docker services...
+    service:
+            name: "docker"
+            state: started
+            enabled: yes
+
+  - name: installing docker sdk(py lib)...
+    pip:
+            name: docker
+ 
+  - name: pull docker httpd  image...
+    docker_image:
+            name:  "httpd"
+            source: pull
+ 
+  - name: creating folder for webpage...
+    file:
+            name: "/root/webpage"
+            state: directory
+
+  - name: copying html code to /var/www/html dir...
+    copy:
+            dest: "/root/webpage/index.html"
+            content: "Task 10 ansible of ARTH completed!\n"
+          
+  - name: launching docker container....
+    community.general.docker_container:
+            name: dockweb
+            image: httpd
+            state: started
+            exposed_ports: "80"
+            ports: "8080:80"
+            volumes: 
+                  - /root/webpage/:/usr/local/apache2/htdocs    
+  - firewalld:
+          port: "8080/tcp"
+          state: enabled
+          permanent: yes
+          immediate: yes
+  - firewalld:
+          port: "80/tcp"
+          state: enabled
+          permanent: yes
+          immediate: yes          
